@@ -21,7 +21,7 @@ function App() {
   
   useEffect(() => {
     fetchPopularMovies(); 
-  }, [apiKey]); s
+  }, [apiKey]); 
 
   useEffect(() => {   
     movies.forEach((movie) => {
