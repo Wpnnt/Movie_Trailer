@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import './index.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
@@ -11,57 +11,59 @@ function App() {
   const apiKey = process.env.REACT_APP_API_KEY; 
   
   
-  const fetchPopularMovies = () => {
+  const fetchPopularMovies = useCallback(() => {
     fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}`)
       .then((response) => response.json())
       .then((data) => setMovies(data.results)) 
       .catch((error) => console.error("Erro ao buscar filmes populares:", error));
-  };
+  }, [apiKey]);
 
-  
   useEffect(() => {
     fetchPopularMovies(); 
-  }, [apiKey]); 
+  }, [fetchPopularMovies]);
 
-  useEffect(() => {   
-    movies.forEach((movie) => {
-      fetch(`https://api.themoviedb.org/3/movie/${movie.id}/videos?api_key=${apiKey}`)
-        .then((response) => response.json())
-        .then((data) => {
+  useEffect(() => {
+    const fetchTrailers = async () => {
+      const trailersData = await Promise.all(
+        movies.map(async (movie) => {
+          const response = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}/videos?api_key=${apiKey}`);
+          const data = await response.json();
           const trailer = data.results.find((video) => video.type === 'Trailer');
-          if (trailer) {
-            setTrailers((prev) => ({
-              ...prev,
-              [movie.id]: trailer.key,
-            }));
-          }
+          return trailer ? { [movie.id]: trailer.key } : {};
         })
-        .catch((error) => console.error("Erro ao buscar trailer:", error));
-    });
-  }, [movies, apiKey]); 
+      );
+      setTrailers(Object.assign({}, ...trailersData));
+    };
+
+    if (movies.length > 0) {
+      fetchTrailers();
+    }
+  }, [movies, apiKey]);
 
   
-  const searchMovies = (query) => {
+  const searchMovies = useCallback((query) => {
     fetch(`https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${query}`)
       .then((response) => response.json())
       .then((data) => {
-        setMovies(data.results);
+        setMovies(data.results); 
       })
       .catch((error) => console.error("Erro ao buscar filmes:", error));
-  };
+  }, [apiKey]);
 
   useEffect(() => {
     if (searchTerm) {
-      searchMovies(searchTerm);
+      searchMovies(searchTerm); 
     } else {
-      fetchPopularMovies();
+      fetchPopularMovies(); 
     }
-  }, [searchTerm, fetchPopularMovies, searchMovies]);
+  }, [searchTerm, fetchPopularMovies, searchMovies]); 
 
   
-  const displayedMovies = movies
-    .filter((movie) => trailers[movie.id]) 
-    .slice(0, visibleMovies);
+  const displayedMovies = useMemo(() => {
+    return movies
+      .filter((movie) => trailers[movie.id]) 
+      .slice(0, visibleMovies);
+  }, [movies, trailers, visibleMovies]);
 
   
   const loadMoreMovies = () => {
@@ -84,7 +86,7 @@ function App() {
             placeholder="Buscar filme..."
             className="w-full p-2 text-black rounded-lg"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => setSearchTerm(e.target.value)} 
           />
         </div>
 
