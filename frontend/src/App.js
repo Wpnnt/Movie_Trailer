@@ -3,28 +3,27 @@ import './index.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 function App() {
-  const [movies, setMovies] = useState([]); // Lista de filmes
-  const [searchTerm, setSearchTerm] = useState(''); // Termo de busca
-  const [visibleMovies, setVisibleMovies] = useState(10); // 10 filmes visíveis por tela
-  const [trailers, setTrailers] = useState({}); // Armazenar trailers dos filmes
+  const [movies, setMovies] = useState([]); 
+  const [searchTerm, setSearchTerm] = useState(''); 
+  const [visibleMovies, setVisibleMovies] = useState(10); 
+  const [trailers, setTrailers] = useState({}); 
 
-  const apiKey = process.env.REACT_APP_API_KEY; // chave de API carregada das variáveis de ambiente
+  const apiKey = process.env.REACT_APP_API_KEY; 
   
-  // Função para buscar filmes populares
+  
   const fetchPopularMovies = () => {
     fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}`)
       .then((response) => response.json())
-      .then((data) => setMovies(data.results)) // Atualiza os filmes populares
+      .then((data) => setMovies(data.results)) 
       .catch((error) => console.error("Erro ao buscar filmes populares:", error));
   };
 
-  // Função para buscar trailers dos filmes
+  
   useEffect(() => {
-    fetchPopularMovies(); // Carrega os filmes populares quando o componente é montado
-  }, [apiKey]); // Adicionando 'apiKey' no array de dependências
+    fetchPopularMovies(); 
+  }, [apiKey]); s
 
-  useEffect(() => {
-    // Buscar trailers para os filmes populares carregados
+  useEffect(() => {   
     movies.forEach((movie) => {
       fetch(`https://api.themoviedb.org/3/movie/${movie.id}/videos?api_key=${apiKey}`)
         .then((response) => response.json())
@@ -39,34 +38,34 @@ function App() {
         })
         .catch((error) => console.error("Erro ao buscar trailer:", error));
     });
-  }, [movies, apiKey]); // Adicionando 'movies' e 'apiKey' no array de dependências
+  }, [movies, apiKey]); 
 
-  // Função para buscar filmes com base no termo de busca
+  
   const searchMovies = (query) => {
     fetch(`https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${query}`)
       .then((response) => response.json())
       .then((data) => {
-        setMovies(data.results); // Atualiza os filmes com a resposta da API
+        setMovies(data.results);
       })
       .catch((error) => console.error("Erro ao buscar filmes:", error));
   };
 
   useEffect(() => {
     if (searchTerm) {
-      searchMovies(searchTerm); // Se houver um termo de busca, faz a pesquisa
+      searchMovies(searchTerm);
     } else {
-      fetchPopularMovies(); // Se não houver termo de busca, carrega filmes populares
+      fetchPopularMovies();
     }
-  }, [searchTerm, fetchPopularMovies, searchMovies]); // Adicionando 'fetchPopularMovies' e 'searchMovies' no array de dependências
+  }, [searchTerm, fetchPopularMovies, searchMovies]);
 
-  // Limitar os filmes exibidos com base no estado visibleMovies
+  
   const displayedMovies = movies
-    .filter((movie) => trailers[movie.id]) // Filtra os filmes que possuem trailer
+    .filter((movie) => trailers[movie.id]) 
     .slice(0, visibleMovies);
 
-  // Função para carregar mais filmes
+  
   const loadMoreMovies = () => {
-    setVisibleMovies(visibleMovies + 10); // Aumenta em 10 a quantidade de filmes visíveis
+    setVisibleMovies(visibleMovies + 10); 
   };
 
   return (
@@ -85,7 +84,7 @@ function App() {
             placeholder="Buscar filme..."
             className="w-full p-2 text-black rounded-lg"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)} // Atualiza o termo de busca
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
 
