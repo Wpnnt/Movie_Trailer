@@ -75,7 +75,7 @@ function App() {
       <header className="bg-gray-800 p-4">
       <h1 className="font-burtons font text-xl">developed by <a href='https://github.com/Wpnnt' target="_blank" rel="noreferrer">wpnnt</a> </h1>
         <h1 className="text-3xl font-bold text-center justify-center">       
-          <i className="fa-solid fa-film"></i> <a href='/'>Trailerflix</a>
+          <i className="fa-solid fa-film"></i> <a href='/'>Movie Trailer</a>
         </h1>
       </header>
       <main className="p-4">
